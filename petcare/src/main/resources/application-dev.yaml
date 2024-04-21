@@ -1,0 +1,38 @@
+spring:
+  jpa:
+    database: mysql
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:mysql://localhost:3306/PetCare
+    username: root
+    password: mysql_1789
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: pawbuddiesinc@gmail.com
+    password: yhjjxbigjgfmiszg
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+application:
+  security:
+    jwt:
+      secret-key: ZQJLZ5A9qaMkhuI1fH8tRr4z19+899IPVnUNeobO3hqKvl9ZXRMTlA2BqJ3DU/L/
+      expiration: 86400000 # a day
+      refresh-token:
+        expiration: 604800000 # 7 days
+  mailing:
+    frontend:
+      activation-url: http://localhost:4200/activate-account
+  #file:
+  #  uploads:
+  #    photos-output-path: ./uploads
+server:
+  port: 8080

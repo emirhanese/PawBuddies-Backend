@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+      https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+
+    <include file="db/changelog/scripts/create_users_table.sql"/>
+
+    <changeSet id="1708298694670-1" author="emirese">
+        <createTable tableName="pets">
+            <column name="id" type="binary(16)">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="pk_pets"/>
+            </column>
+            <column name="created_at" type="DATETIME"/>
+            <column name="updated_at" type="DATETIME"/>
+            <column name="name" type="VARCHAR(50)"/>
+            <column name="type" type="VARCHAR(25)"/>
+            <column name="genus" type="VARCHAR(25)"/>
+            <column name="gender" type="VARCHAR(6)"/>
+            <column name="image" type="VARCHAR(255)"/>
+            <column name="weight" type="DOUBLE"/>
+            <column name="latitude" type="DOUBLE"/>
+            <column name="longitude" type="DOUBLE"/>
+            <column name="birth_date" type="DATETIME"/>
+            <column name="user_id" type="binary(16)">
+                <constraints nullable="false" foreignKeyName="fk_pets_user" references="users(id)"/>
+            </column>
+        </createTable>
+    </changeSet>
+</databaseChangeLog>
