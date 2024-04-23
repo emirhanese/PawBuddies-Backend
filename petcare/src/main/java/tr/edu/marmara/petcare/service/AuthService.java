@@ -12,6 +12,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import tr.edu.marmara.petcare.dto.*;
+import tr.edu.marmara.petcare.exception.ActivationTokenException;
+import tr.edu.marmara.petcare.exception.UserAlreadyExistAuthenticationException;
 import tr.edu.marmara.petcare.model.Token;
 import tr.edu.marmara.petcare.model.User;
 import tr.edu.marmara.petcare.model.UserRole;
@@ -40,8 +42,11 @@ public class AuthService {
     private String activationUrl;
 
     public void register(UserSaveRequest registerRequest) throws MessagingException {
-
-        var user = User.builder()
+        var user = userRepository.findByEmail(registerRequest.getEmail());
+        if(user.isPresent()) {
+            throw new UserAlreadyExistAuthenticationException("User already exists with given email!");
+        }
+        var userToBeSaved = User.builder()
                 .name(registerRequest.getName())
                 .surname(registerRequest.getSurname())
                 .email(registerRequest.getEmail())
@@ -53,8 +58,8 @@ public class AuthService {
                 .userState(UserState.APPROVED)
                 .build();
 
-        userRepository.save(user);
-        sendValidationEmail(user);
+        userRepository.save(userToBeSaved);
+        sendValidationEmail(userToBeSaved);
     }
 
     public AuthResponse authenticate(AuthRequest authenticationRequest,
@@ -68,7 +73,7 @@ public class AuthService {
         );
 
         var user = userRepository.findByEmail(authenticationRequest.email())
-                .orElseThrow();
+                .orElseThrow(() -> new UsernameNotFoundException("user not found with given email"));
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
         return new AuthResponse(jwtToken, refreshToken);
@@ -77,7 +82,7 @@ public class AuthService {
     public AuthResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
         String email = jwtService.extractUsername(refreshTokenRequest.token());
         User user = userRepository.findByEmail(email)
-                .orElseThrow();
+                .orElseThrow(() -> new UsernameNotFoundException("user not found with given email"));
 
         if(jwtService.isTokenValid(refreshTokenRequest.token(), user)) {
             var jwtToken = jwtService.generateToken(user);
@@ -92,10 +97,10 @@ public class AuthService {
     public void activateAccount(String token) throws MessagingException {
         Token savedToken = tokenRepository.findByToken(token)
                 // todo exception has to be defined
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+                .orElseThrow(() -> new ActivationTokenException("Invalid token"));
         if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
             sendValidationEmail(savedToken.getUser());
-            throw new RuntimeException("Activation token has expired. A new token has been send to the same email address");
+            throw new ActivationTokenException("Activation token has expired. A new token has been send to the same email address");
         }
 
         var user = userRepository.findById(savedToken.getUser().getId())
@@ -107,13 +112,56 @@ public class AuthService {
         tokenRepository.save(savedToken);
     }
 
+    public void resetPassword(UserUpdateRequest userUpdateRequest, String token) throws MessagingException {
+        Token savedToken = tokenRepository.findByToken(token)
+                // todo exception has to be defined
+                .orElseThrow(() -> new ActivationTokenException("Invalid token"));
+        if (LocalDateTime.now().isAfter(savedToken.getExpiresAt())) {
+            sendValidationEmail(savedToken.getUser());
+            throw new ActivationTokenException("Token has expired. A new token has been send to the same email address");
+        }
+
+        var user = userRepository.findById(savedToken.getUser().getId())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        user.setPassword(userUpdateRequest.getPassword());
+    }
+
+    public void sendPasswordResetEmail(String email) throws MessagingException {
+        var user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("user not found with given email!"));
+
+        var newToken = generateAndSavePasswordResetToken(user);
+
+        emailService.sendEmail(
+                user.getEmail(),
+                user.getFullName(),
+                EmailTemplateName.RESET_PASSWORD,
+                activationUrl,
+                newToken,
+                "Reset Password"
+        );
+    }
     private String generateAndSaveActivationToken(User user) {
         // Generate a token
-        String generatedToken = generateActivationCode(6);
+        String generatedToken = generateVerificationCode(6);
         var token = Token.builder()
                 .token(generatedToken)
                 .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(15))
+                .expiresAt(LocalDateTime.now().plusMinutes(5))
+                .user(user)
+                .build();
+        tokenRepository.save(token);
+
+        return generatedToken;
+    }
+
+    private String generateAndSavePasswordResetToken(User user) {
+        // Generate a token
+        String generatedToken = generateVerificationCode(6);
+        var token = Token.builder()
+                .token(generatedToken)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(2))
                 .user(user)
                 .build();
         tokenRepository.save(token);
@@ -134,7 +182,7 @@ public class AuthService {
         );
     }
 
-    private String generateActivationCode(int length) {
+    private String generateVerificationCode(int length) {
         String characters = "0123456789";
         StringBuilder codeBuilder = new StringBuilder();
 

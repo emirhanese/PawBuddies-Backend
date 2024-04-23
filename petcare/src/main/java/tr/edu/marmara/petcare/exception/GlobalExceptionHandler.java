@@ -1,7 +1,6 @@
 package tr.edu.marmara.petcare.exception;
 
 import jakarta.mail.MessagingException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -9,9 +8,6 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.springframework.http.HttpStatus.*;
 import static tr.edu.marmara.petcare.exception.BusinessErrorCodes.*;
@@ -65,6 +61,8 @@ public class GlobalExceptionHandler {
                 .status(INTERNAL_SERVER_ERROR)
                 .body(
                         ExceptionResponse.builder()
+                                .businessErrorCode(INTERNAL_SERVER_ERROR.value())
+                                .businessErrorDescription(INTERNAL_SERVER_ERROR.getReasonPhrase())
                                 .error(exp.getMessage())
                                 .build()
                 );
@@ -76,7 +74,22 @@ public class GlobalExceptionHandler {
                 .status(BAD_REQUEST)
                 .body(
                         ExceptionResponse.builder()
+                                .businessErrorCode(BAD_REQUEST.value())
+                                .businessErrorDescription(BAD_REQUEST.getReasonPhrase())
                                 .error(exp.getMessage())
+                                .build()
+                );
+    }
+
+    @ExceptionHandler(UserAlreadyExistAuthenticationException.class)
+    public ResponseEntity<ExceptionResponse> handleException(UserAlreadyExistAuthenticationException exp) {
+        return ResponseEntity
+                .status(UNPROCESSABLE_ENTITY)
+                .body(
+                        ExceptionResponse.builder()
+                                .businessErrorCode(UNPROCESSABLE_ENTITY.value())
+                                .businessErrorDescription(exp.getMessage())
+                                .error("User already exists!")
                                 .build()
                 );
     }
@@ -87,6 +100,8 @@ public class GlobalExceptionHandler {
                 .status(BAD_REQUEST)
                 .body(
                         ExceptionResponse.builder()
+                                .businessErrorCode(BAD_REQUEST.value())
+                                .businessErrorDescription(BAD_REQUEST.getReasonPhrase())
                                 .error(exp.getMessage())
                                 .build()
                 );
@@ -94,19 +109,21 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exp) {
-        Set<String> errors = new HashSet<>();
+        StringBuilder sb = new StringBuilder();
         exp.getBindingResult().getAllErrors()
                 .forEach(error -> {
                     //var fieldName = ((FieldError) error).getField();
                     var errorMessage = error.getDefaultMessage();
-                    errors.add(errorMessage);
+                    sb.append(errorMessage).append(System.lineSeparator());
                 });
 
         return ResponseEntity
                 .status(BAD_REQUEST)
                 .body(
                         ExceptionResponse.builder()
-                                .validationErrors(errors)
+                                .businessErrorCode(BAD_REQUEST.value())
+                                .businessErrorDescription(BAD_REQUEST.getReasonPhrase())
+                                .error(sb.toString())
                                 .build()
                 );
     }
@@ -118,6 +135,7 @@ public class GlobalExceptionHandler {
                 .status(INTERNAL_SERVER_ERROR)
                 .body(
                         ExceptionResponse.builder()
+                                .businessErrorCode(INCORRECT_CURRENT_PASSWORD.getCode())
                                 .businessErrorDescription("Internal error, please contact the admin")
                                 .error(exp.getMessage())
                                 .build()

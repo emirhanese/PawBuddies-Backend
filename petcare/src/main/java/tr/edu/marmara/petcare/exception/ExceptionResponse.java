@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -21,6 +20,4 @@ public class ExceptionResponse {
     private Integer businessErrorCode;
     private String businessErrorDescription;
     private String error;
-    private Set<String> validationErrors;
-    private Map<String, String> errors;
 }

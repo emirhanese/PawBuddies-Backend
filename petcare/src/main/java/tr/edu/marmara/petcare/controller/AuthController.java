@@ -45,4 +45,14 @@ public class AuthController {
     public void confirm(@RequestParam String token) throws MessagingException {
         authService.activateAccount(token);
     }
+
+    @PostMapping("/reset-password")
+    public void resetPassword(@RequestBody UserUpdateRequest userUpdateRequest, @RequestParam String token) throws MessagingException {
+        authService.resetPassword(userUpdateRequest, token);
+    }
+
+    @PostMapping("/forgot-password")
+    public void sendResetPasswordEmail(@RequestBody String email) throws MessagingException {
+        authService.sendPasswordResetEmail(email);
+    }
 }
