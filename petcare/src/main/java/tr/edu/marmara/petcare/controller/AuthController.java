@@ -23,9 +23,8 @@ public class AuthController {
         this.authService = authService;
     }
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid UserSaveRequest userSaveRequest) throws MessagingException {
-        authService.register(userSaveRequest);
-        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    public ResponseEntity<MessageResponse> register(@RequestBody @Valid UserSaveRequest userSaveRequest) throws MessagingException {
+        return new ResponseEntity<>(authService.register(userSaveRequest), HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/authenticate")
@@ -42,17 +41,22 @@ public class AuthController {
     }
 
     @GetMapping("/activate-account")
-    public void confirm(@RequestParam String token) throws MessagingException {
-        authService.activateAccount(token);
+    public ResponseEntity<MessageResponse> confirm(@RequestParam String token) throws MessagingException {
+        return new ResponseEntity<>(authService.activateAccount(token), HttpStatus.OK);
     }
 
     @PostMapping("/reset-password")
-    public void resetPassword(@RequestBody UserUpdateRequest userUpdateRequest, @RequestParam String token) throws MessagingException {
-        authService.resetPassword(userUpdateRequest, token);
+    public ResponseEntity<MessageResponse> resetPassword(@RequestBody PasswordResetRequest passwordResetRequest) throws MessagingException {
+        return new ResponseEntity<>(authService.resetPassword(passwordResetRequest), HttpStatus.OK);
     }
 
-    @PostMapping("/forgot-password")
-    public void sendResetPasswordEmail(@RequestBody String email) throws MessagingException {
-        authService.sendPasswordResetEmail(email);
+    @GetMapping("/isPasswordResetTokenValid")
+    public ResponseEntity<MessageResponse> isPasswordResetTokenValid(@RequestParam String token) throws MessagingException {
+        return new ResponseEntity<>(authService.isPasswordResetTokenValid(token), HttpStatus.OK);
+    }
+
+    @PostMapping("/sendResetPasswordEmail")
+    public ResponseEntity<MessageResponse> sendResetPasswordEmail(@RequestParam String email) throws MessagingException {
+        return new ResponseEntity<>(authService.sendPasswordResetEmail(email), HttpStatus.OK);
     }
 }

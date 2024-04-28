@@ -1,7 +1,6 @@
 package tr.edu.marmara.petcare.dto;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class UserUpdateRequest {

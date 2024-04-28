@@ -45,7 +45,7 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(refreshTokenExpiration)) // valid for 7 days
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration)) // valid for 7 days
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -59,7 +59,7 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(jwtExpiration))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

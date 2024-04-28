@@ -41,7 +41,7 @@ public class AuthService {
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
 
-    public void register(UserSaveRequest registerRequest) throws MessagingException {
+    public MessageResponse register(UserSaveRequest registerRequest) throws MessagingException {
         var user = userRepository.findByEmail(registerRequest.getEmail());
         if(user.isPresent()) {
             throw new UserAlreadyExistAuthenticationException("User already exists with given email!");
@@ -51,7 +51,7 @@ public class AuthService {
                 .surname(registerRequest.getSurname())
                 .email(registerRequest.getEmail())
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
-                .role(UserRole.USER)
+                .role(UserRole.valueOf(registerRequest.getRole()))
                 .isEnabled(false)
                 .isExpired(false)
                 .isLocked(false)
@@ -60,6 +60,8 @@ public class AuthService {
 
         userRepository.save(userToBeSaved);
         sendValidationEmail(userToBeSaved);
+
+        return new MessageResponse("User saved successfully.");
     }
 
     public AuthResponse authenticate(AuthRequest authenticationRequest,
@@ -94,7 +96,7 @@ public class AuthService {
     }
 
     //@Transactional
-    public void activateAccount(String token) throws MessagingException {
+    public MessageResponse activateAccount(String token) throws MessagingException {
         Token savedToken = tokenRepository.findByToken(token)
                 // todo exception has to be defined
                 .orElseThrow(() -> new ActivationTokenException("Invalid token"));
@@ -110,9 +112,20 @@ public class AuthService {
 
         savedToken.setValidatedAt(LocalDateTime.now());
         tokenRepository.save(savedToken);
+
+        return new MessageResponse("Account activated successfully.");
     }
 
-    public void resetPassword(UserUpdateRequest userUpdateRequest, String token) throws MessagingException {
+    public MessageResponse resetPassword(PasswordResetRequest passwordResetRequest) throws MessagingException {
+        var user = userRepository.findByEmail(passwordResetRequest.email())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        user.setPassword(passwordEncoder.encode(passwordResetRequest.password()));
+        userRepository.save(user);
+
+        return new MessageResponse("Password reset successfully.");
+    }
+
+    public MessageResponse isPasswordResetTokenValid(String token) throws MessagingException {
         Token savedToken = tokenRepository.findByToken(token)
                 // todo exception has to be defined
                 .orElseThrow(() -> new ActivationTokenException("Invalid token"));
@@ -121,12 +134,13 @@ public class AuthService {
             throw new ActivationTokenException("Token has expired. A new token has been send to the same email address");
         }
 
-        var user = userRepository.findById(savedToken.getUser().getId())
+        userRepository.findById(savedToken.getUser().getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        user.setPassword(userUpdateRequest.getPassword());
+
+        return new MessageResponse("Password Reset token is correct.");
     }
 
-    public void sendPasswordResetEmail(String email) throws MessagingException {
+    public MessageResponse sendPasswordResetEmail(String email) throws MessagingException {
         var user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("user not found with given email!"));
 
@@ -140,6 +154,8 @@ public class AuthService {
                 newToken,
                 "Reset Password"
         );
+
+        return new MessageResponse("Password reset email sent successfully.");
     }
     private String generateAndSaveActivationToken(User user) {
         // Generate a token
