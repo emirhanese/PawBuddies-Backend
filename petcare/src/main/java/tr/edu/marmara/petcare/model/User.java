@@ -17,6 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @DynamicInsert
 @DynamicUpdate
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
 @Table(name = "users")
 public class User extends BaseModel implements UserDetails {
     private String name;

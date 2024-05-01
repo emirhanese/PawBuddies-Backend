@@ -1,11 +1,8 @@
 package tr.edu.marmara.petcare.dto;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
-import tr.edu.marmara.petcare.model.UserRole;
 
 @Getter
 @Setter
@@ -25,4 +22,5 @@ public class UserSaveRequest {
     @NotEmpty(message = "User role is mandatory")
     @NotNull(message = "User role is mandatory")
     private String role;
+    private AddressSaveRequest address;
 }

@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import tr.edu.marmara.petcare.dto.*;
 import tr.edu.marmara.petcare.exception.ActivationTokenException;
 import tr.edu.marmara.petcare.exception.UserAlreadyExistAuthenticationException;
-import tr.edu.marmara.petcare.model.Token;
-import tr.edu.marmara.petcare.model.User;
-import tr.edu.marmara.petcare.model.UserRole;
-import tr.edu.marmara.petcare.model.UserState;
+import tr.edu.marmara.petcare.model.*;
 import tr.edu.marmara.petcare.repository.TokenRepository;
 import tr.edu.marmara.petcare.repository.UserRepository;
 
@@ -25,6 +22,7 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +34,7 @@ public class AuthService {
     private final EmailService emailService;
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
-    private final ModelMapper modelMapper;
+    private final AddressService addressService;
 
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
@@ -46,7 +44,8 @@ public class AuthService {
         if(user.isPresent()) {
             throw new UserAlreadyExistAuthenticationException("User already exists with given email!");
         }
-        var userToBeSaved = User.builder()
+        var userToBeSaved = new User();
+        userToBeSaved = User.builder()
                 .name(registerRequest.getName())
                 .surname(registerRequest.getSurname())
                 .email(registerRequest.getEmail())
@@ -55,10 +54,15 @@ public class AuthService {
                 .isEnabled(false)
                 .isExpired(false)
                 .isLocked(false)
-                .userState(UserState.APPROVED)
+                .userState(UserState.PENDING)
                 .build();
 
         userRepository.save(userToBeSaved);
+
+        if(registerRequest.getRole().equals("VETERINARY")) {
+            addressService.saveAddress(userToBeSaved, registerRequest.getAddress());
+        }
+
         sendValidationEmail(userToBeSaved);
 
         return new MessageResponse("User saved successfully.");
@@ -76,8 +80,11 @@ public class AuthService {
 
         var user = userRepository.findByEmail(authenticationRequest.email())
                 .orElseThrow(() -> new UsernameNotFoundException("user not found with given email"));
-        var jwtToken = jwtService.generateToken(user);
-        var refreshToken = jwtService.generateRefreshToken(new HashMap<>(), user);
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("user_id", user.getId());
+        claims.put("user_role", user.getRole());
+        var jwtToken = jwtService.generateToken(claims, user);
+        var refreshToken = jwtService.generateRefreshToken(claims, user);
         return new AuthResponse(jwtToken, refreshToken);
     }
 
@@ -107,7 +114,13 @@ public class AuthService {
 
         var user = userRepository.findById(savedToken.getUser().getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        user.setEnabled(true);
+        if(user.getRole().equals(UserRole.valueOf("USER"))) {
+            user.setEnabled(true);
+            user.setUserState(UserState.APPROVED);
+        }
+        else {
+            user.setUserState(UserState.APPROVED);
+        }
         userRepository.save(user);
 
         savedToken.setValidatedAt(LocalDateTime.now());

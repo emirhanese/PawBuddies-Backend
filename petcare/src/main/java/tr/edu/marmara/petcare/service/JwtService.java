@@ -50,7 +50,7 @@ public class JwtService {
                 .compact();
     }
 
-    private String generateToken(
+    public String generateToken(
             Map<String, Object> extraClaims,
             UserDetails userDetails
     ) {

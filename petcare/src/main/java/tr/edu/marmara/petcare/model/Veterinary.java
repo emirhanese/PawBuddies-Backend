@@ -1,4 +1,16 @@
 package tr.edu.marmara.petcare.model;
 
-public class Veterinary {
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import lombok.*;
+
+import java.util.List;
+
+
+@Entity
+@Getter
+@Setter
+public class Veterinary extends User {
+    @OneToMany(mappedBy = "veterinary")
+    private List<Address> address;
 }
