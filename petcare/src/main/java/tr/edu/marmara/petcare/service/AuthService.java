@@ -89,6 +89,7 @@ public class AuthService {
         var refreshToken = jwtService.generateRefreshToken(claims, user);
         revokeAllTokenByUser(user);
         saveUserToken(jwtToken, user);
+        saveUserToken(refreshToken, user);
         return new AuthResponse(jwtToken, refreshToken);
     }
 
@@ -99,7 +100,7 @@ public class AuthService {
 
         if(jwtService.isTokenValid(refreshTokenRequest.token(), user)) {
             var jwtToken = jwtService.generateToken(user);
-
+            saveUserToken(jwtToken, user);
             return new AuthResponse(jwtToken, refreshTokenRequest.token());
         }
 
