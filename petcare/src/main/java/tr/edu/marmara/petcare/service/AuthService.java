@@ -4,7 +4,6 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,6 +14,7 @@ import tr.edu.marmara.petcare.dto.*;
 import tr.edu.marmara.petcare.exception.ActivationTokenException;
 import tr.edu.marmara.petcare.exception.UserAlreadyExistAuthenticationException;
 import tr.edu.marmara.petcare.model.*;
+import tr.edu.marmara.petcare.repository.JwtTokenRepository;
 import tr.edu.marmara.petcare.repository.TokenRepository;
 import tr.edu.marmara.petcare.repository.UserRepository;
 
@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -35,6 +36,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
     private final AddressService addressService;
+    private final JwtTokenRepository jwtTokenRepository;
 
     @Value("${application.mailing.frontend.activation-url}")
     private String activationUrl;
@@ -85,6 +87,8 @@ public class AuthService {
         claims.put("user_role", user.getRole());
         var jwtToken = jwtService.generateToken(claims, user);
         var refreshToken = jwtService.generateRefreshToken(claims, user);
+        revokeAllTokenByUser(user);
+        saveUserToken(jwtToken, user);
         return new AuthResponse(jwtToken, refreshToken);
     }
 
@@ -223,5 +227,25 @@ public class AuthService {
         }
 
         return codeBuilder.toString();
+    }
+
+    private void revokeAllTokenByUser(User user) {
+        List<JwtToken> validTokens = jwtTokenRepository.findAllTokensByUser(user.getId());
+        if(validTokens.isEmpty()) {
+            return;
+        }
+
+        validTokens.forEach(t-> {
+            t.setLoggedOut(true);
+        });
+
+        jwtTokenRepository.saveAll(validTokens);
+    }
+    private void saveUserToken(String jwt, User user) {
+        JwtToken token = new JwtToken();
+        token.setToken(jwt);
+        token.setLoggedOut(false);
+        token.setUser(user);
+        jwtTokenRepository.save(token);
     }
 }

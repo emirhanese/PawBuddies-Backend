@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import tr.edu.marmara.petcare.repository.JwtTokenRepository;
 
 import java.security.Key;
 import java.util.Date;
@@ -23,6 +24,12 @@ public class JwtService {
     private long jwtExpiration;
     @Value("${application.security.jwt.refresh-token.expiration}")
     private long refreshTokenExpiration;
+    private final JwtTokenRepository jwtTokenRepository;
+
+    public JwtService(JwtTokenRepository jwtTokenRepository) {
+        this.jwtTokenRepository = jwtTokenRepository;
+    }
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -66,7 +73,11 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        boolean validToken = jwtTokenRepository
+                .findByToken(token)
+                .map(t -> !t.isLoggedOut())
+                .orElse(false);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token)) && validToken;
     }
 
     private boolean isTokenExpired(String token) {
