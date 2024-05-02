@@ -37,9 +37,6 @@ public class User extends BaseModel implements UserDetails {
     private boolean isExpired;
     @Setter
     private boolean isEnabled;
-
-    @Enumerated(EnumType.STRING)
-    private UserState userState;
     public String getName() {
         return name;
     }
@@ -66,14 +63,6 @@ public class User extends BaseModel implements UserDetails {
 
     public String getEmail() {
         return email;
-    }
-
-    public void setUserState(UserState userState) {
-        this.userState = userState;
-    }
-
-    public UserState getUserState() {
-        return userState;
     }
 
     @Override

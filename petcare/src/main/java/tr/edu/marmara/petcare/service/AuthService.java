@@ -56,8 +56,11 @@ public class AuthService {
                 .isEnabled(false)
                 .isExpired(false)
                 .isLocked(false)
-                .userState(UserState.PENDING)
                 .build();
+
+        if(registerRequest.getRole().equals("VETERINARY")) {
+            userToBeSaved.setLocked(true);
+        }
 
         userRepository.save(userToBeSaved);
 
@@ -119,13 +122,7 @@ public class AuthService {
 
         var user = userRepository.findById(savedToken.getUser().getId())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        if(user.getRole().equals(UserRole.valueOf("USER"))) {
-            user.setEnabled(true);
-            user.setUserState(UserState.APPROVED);
-        }
-        else {
-            user.setUserState(UserState.APPROVED);
-        }
+        user.setEnabled(true);
         userRepository.save(user);
 
         savedToken.setValidatedAt(LocalDateTime.now());
