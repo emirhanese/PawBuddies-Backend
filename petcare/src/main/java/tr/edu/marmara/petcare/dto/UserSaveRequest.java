@@ -23,4 +23,5 @@ public class UserSaveRequest {
     @NotNull(message = "User role is mandatory")
     private String role;
     private AddressSaveRequest address;
+    private DocumentSaveRequest document;
 }

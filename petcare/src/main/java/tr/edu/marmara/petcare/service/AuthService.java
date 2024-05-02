@@ -36,6 +36,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
     private final AddressService addressService;
+    private final DocumentService documentService;
     private final JwtTokenRepository jwtTokenRepository;
 
     @Value("${application.mailing.frontend.activation-url}")
@@ -66,6 +67,7 @@ public class AuthService {
 
         if(registerRequest.getRole().equals("VETERINARY")) {
             addressService.saveAddress(userToBeSaved, registerRequest.getAddress());
+            documentService.saveDocument(userToBeSaved, registerRequest.getDocument());
         }
 
         sendValidationEmail(userToBeSaved);
