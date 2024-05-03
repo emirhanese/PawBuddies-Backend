@@ -6,7 +6,7 @@ spring:
     hibernate:
       ddl-auto: update
   datasource:
-    url: jdbc:mysql://localhost:3306/PetCare
+    url: jdbc:mysql://localhost:3307/PetCare
     username: root
     password: mysql_1789
     driver-class-name: com.mysql.cj.jdbc.Driver
