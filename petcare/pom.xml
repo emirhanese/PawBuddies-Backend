@@ -113,6 +113,7 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>pawbuddies</finalName>
     </build>
 
 </project>
