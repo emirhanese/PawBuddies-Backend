@@ -1,0 +1,25 @@
+version: 3.8.3
+
+services:
+  mysql:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=PetCare'
+      - 'MYSQL_PASSWORD=mysql_1789'
+      - 'MYSQL_USER=root'
+      - 'MYSQL_ROOT_PASSWORD=mysql_1789'
+
+    ports:
+      - '3306:3306'
+  application:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/PetCare?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: mysql_1789
+volumes:
+  mysql-data:
