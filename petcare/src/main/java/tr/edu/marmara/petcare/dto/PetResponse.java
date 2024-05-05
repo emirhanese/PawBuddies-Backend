@@ -14,10 +14,11 @@ public class PetResponse {
     private Date updatedAt;
     private String name;
     private String type;
-    private String genus;
     private String gender;
     private String image;
+    private String specialInfo;
     private Double weight;
+    private Double height;
     private Double longitude;
     private Double latitude;
     private Date birthDate;

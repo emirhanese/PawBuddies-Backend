@@ -39,10 +39,11 @@ public class PetService {
         Pet savedPet = Pet.builder()
                 .name(pet.name())
                 .type(pet.type())
-                .genus(pet.genus())
                 .gender(pet.gender())
                 .image(pet.image())
+                .specialInfo(pet.specialInfo())
                 .weight(pet.weight())
+                .height(pet.height())
                 .birthDate(pet.birthDate())
                 .build();
         User owner = userRepository.findById(userId)
