@@ -27,6 +27,7 @@ public class User extends BaseModel implements UserDetails {
     private String password;
     @Enumerated(EnumType.STRING)
     private UserRole role;
+    @Getter
     @OneToMany(mappedBy = "owner")
     private List<Pet> pets;
     @Getter

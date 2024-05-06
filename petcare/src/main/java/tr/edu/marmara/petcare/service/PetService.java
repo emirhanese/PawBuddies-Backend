@@ -2,6 +2,7 @@ package tr.edu.marmara.petcare.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import tr.edu.marmara.petcare.dto.PetResponse;
 import tr.edu.marmara.petcare.dto.SavePetRequest;
@@ -47,7 +48,7 @@ public class PetService {
                 .birthDate(pet.birthDate())
                 .build();
         User owner = userRepository.findById(userId)
-                        .orElseThrow();
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
         savedPet.setOwner(owner);
         return modelMapper.map(petRepository.save(savedPet), PetResponse.class);
     }

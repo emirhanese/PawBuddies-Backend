@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tr.edu.marmara.petcare.dto.PetResponse;
 import tr.edu.marmara.petcare.dto.UserResponse;
 import tr.edu.marmara.petcare.dto.UserSaveRequest;
 import tr.edu.marmara.petcare.dto.UserUpdateRequest;
+import tr.edu.marmara.petcare.service.PetService;
 import tr.edu.marmara.petcare.service.UserService;
 
 import java.util.List;
@@ -43,5 +45,9 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public ResponseEntity<UserResponse> deleteUser(@PathVariable UUID userId) {
         return new ResponseEntity<>(userService.deleteUser(userId), HttpStatus.OK);
+    }
+    @GetMapping("/getPets/{userId}")
+    public ResponseEntity<List<PetResponse>> getPets(@PathVariable UUID userId) {
+        return new ResponseEntity<>(userService.getPetsByUserId(userId), HttpStatus.OK);
     }
 }

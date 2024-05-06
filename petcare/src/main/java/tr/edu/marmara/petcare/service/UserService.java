@@ -2,8 +2,10 @@ package tr.edu.marmara.petcare.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import tr.edu.marmara.petcare.dto.PetResponse;
 import tr.edu.marmara.petcare.dto.UserResponse;
 import tr.edu.marmara.petcare.dto.UserSaveRequest;
 import tr.edu.marmara.petcare.dto.UserUpdateRequest;
@@ -63,5 +65,13 @@ public class UserService {
         UserResponse userToBeDeleted = getUserById(userId);
         userRepository.deleteById(userId);
         return userToBeDeleted;
+    }
+
+    public List<PetResponse> getPetsByUserId(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
+        return user.getPets().stream()
+                .map(pet -> modelMapper.map(pet, PetResponse.class))
+                .collect(Collectors.toList());
     }
 }
