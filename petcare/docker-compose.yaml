@@ -26,7 +26,7 @@ services:
     depends_on:
       - mysql
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: ${PROFILE_ACTIVE:-dev}
     restart: on-failure
 volumes:
   mysql-data:
