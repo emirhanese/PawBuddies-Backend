@@ -17,6 +17,8 @@ public class Pet extends BaseModel {
     private String name;
     private String type;
     private String gender;
+    @Lob
+    @Column(columnDefinition = "MEDIUMBLOB")
     private String image;
     private String specialInfo;
     private Double weight;

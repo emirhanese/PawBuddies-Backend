@@ -16,8 +16,9 @@ public class Document {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    @Lob
+    @Column(name = "base64_image", columnDefinition = "MEDIUMBLOB")
     @NotBlank(message = "document image base64 string cannot be null!")
-    @Column(name = "base64_image")
     private String base64Document;
     @JsonIgnore
     @OneToOne
