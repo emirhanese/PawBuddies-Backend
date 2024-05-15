@@ -31,6 +31,9 @@ public class User extends BaseModel implements UserDetails {
     @OneToMany(mappedBy = "owner")
     private List<Pet> pets;
     @Getter
+    @OneToMany(mappedBy = "reservationOwner")
+    private List<Reservation> reservations;
+    @Getter
     @Setter
     private boolean isLocked;
     @Getter

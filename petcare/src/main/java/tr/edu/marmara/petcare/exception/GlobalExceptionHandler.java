@@ -106,6 +106,18 @@ public class GlobalExceptionHandler {
                                 .build()
                 );
     }
+    @ExceptionHandler(ReservationNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleException(ReservationNotFoundException exp) {
+        return ResponseEntity
+                .status(BAD_REQUEST)
+                .body(
+                        ExceptionResponse.builder()
+                                .businessErrorCode(BAD_REQUEST.value())
+                                .businessErrorDescription(BAD_REQUEST.getReasonPhrase())
+                                .error(exp.getMessage())
+                                .build()
+                );
+    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exp) {

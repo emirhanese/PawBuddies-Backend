@@ -16,4 +16,8 @@ public class Veterinary extends User {
     private List<Address> address;
     @OneToOne(mappedBy = "veterinary")
     private Document document;
+    @OneToMany(mappedBy = "veterinary")
+    private List<Reservation> reservations;
+    @OneToOne(mappedBy = "veterinary")
+    private Schedule schedule;
 }

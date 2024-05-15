@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Builder
@@ -30,4 +31,6 @@ public class Pet extends BaseModel {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
     private User owner;
+    @OneToMany(mappedBy = "pet")
+    private List<Reservation> reservations;
 }

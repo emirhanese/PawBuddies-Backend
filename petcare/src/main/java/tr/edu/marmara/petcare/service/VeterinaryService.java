@@ -1,6 +1,7 @@
 package tr.edu.marmara.petcare.service;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import tr.edu.marmara.petcare.dto.VeterinaryResponse;
 import tr.edu.marmara.petcare.dto.VeterinaryUpdateRequest;
@@ -30,11 +31,23 @@ public class VeterinaryService {
     }
 
     public VeterinaryResponse getVeterinaryById(UUID veterinaryId) {
+        var user = userRepository.findById(veterinaryId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
+        return modelMapper.map(user, VeterinaryResponse.class);
     }
 
     public VeterinaryResponse updateVeterinary(UUID veterinaryId, VeterinaryUpdateRequest veterinaryUpdateRequest) {
+        var user = userRepository.findById(veterinaryId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
+        modelMapper.map(veterinaryUpdateRequest, user);
+        userRepository.save(user);
+        return modelMapper.map(user, VeterinaryResponse.class);
     }
 
     public VeterinaryResponse deleteVeterinary(UUID veterinaryId) {
+        var user = userRepository.findById(veterinaryId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
+        userRepository.deleteById(veterinaryId);
+        return modelMapper.map(user, VeterinaryResponse.class);
     }
 }
