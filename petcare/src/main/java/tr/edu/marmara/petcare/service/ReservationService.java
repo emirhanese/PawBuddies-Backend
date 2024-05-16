@@ -7,6 +7,7 @@ import tr.edu.marmara.petcare.dto.ReservationSaveRequest;
 import tr.edu.marmara.petcare.exception.ReservationNotFoundException;
 import tr.edu.marmara.petcare.model.Reservation;
 import tr.edu.marmara.petcare.repository.ReservationRepository;
+import tr.edu.marmara.petcare.repository.UserRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -14,13 +15,18 @@ import java.util.UUID;
 @Service
 public class ReservationService {
     private final ReservationRepository reservationRepository;
+    private final UserRepository userRepository;
 
-    public ReservationService(ReservationRepository reservationRepository) {
+    public ReservationService(ReservationRepository reservationRepository,
+                              UserRepository userRepository) {
         this.reservationRepository = reservationRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Reservation> getReservationsByUserId(UUID userId) {
-        return reservationRepository.findReservationsByReservationOwner(userId)
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
+        return reservationRepository.findReservationsByReservationOwner(user)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
     }
 
