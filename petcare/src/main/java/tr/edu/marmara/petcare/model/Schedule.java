@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.DayOfWeek;
+
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,13 +16,14 @@ import lombok.*;
 public class Schedule {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     // working days, working hours and available hours must be space separated.
-    private String workingDays;
-    private String workingHours;
-    private String availableHours; // this includes hours which are not reserved.
+    @Enumerated(EnumType.STRING)
+    private DayOfWeek dayOfWeek;
+    @OneToOne(mappedBy = "schedule", cascade = CascadeType.ALL)
+    private TimeSlot timeSlot;
     @JsonIgnore
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "veterinary_id", nullable = false)
     private User veterinary;
 }

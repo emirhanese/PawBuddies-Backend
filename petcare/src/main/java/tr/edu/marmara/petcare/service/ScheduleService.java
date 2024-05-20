@@ -11,6 +11,8 @@ import tr.edu.marmara.petcare.model.Schedule;
 import tr.edu.marmara.petcare.repository.ScheduleRepository;
 import tr.edu.marmara.petcare.repository.UserRepository;
 
+import java.time.DayOfWeek;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,28 +28,39 @@ public class ScheduleService {
         this.userRepository = userRepository;
     }
 
-    public Schedule getSchedule(UUID veterinaryId) {
+    public List<Schedule> getSchedulesOfVeterinary(UUID veterinaryId) {
         var veterinary = userRepository.findById(veterinaryId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
-        return scheduleRepository.findScheduleByVeterinary(veterinary)
+        return scheduleRepository.findAllByVeterinary(veterinary)
                 .orElseThrow(() -> new ScheduleNotFoundException("Schedule not found with given ID!"));
     }
-
+    public Schedule getScheduleOfVeterinaryForSpecificDay(UUID veterinaryId, String day) {
+        var veterinary = userRepository.findById(veterinaryId)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
+        return scheduleRepository.findScheduleByVeterinaryAndDayOfWeek(veterinary, DayOfWeek.valueOf(day))
+                .orElseThrow();
+    }
     public MessageResponse saveSchedule(ScheduleSaveRequest scheduleSaveRequest) {
         var schedule = Schedule.builder()
-                .availableHours(scheduleSaveRequest.availableHours())
+                .dayOfWeek(scheduleSaveRequest.dayOfWeek())
+                .timeSlot(scheduleSaveRequest.timeSlot())
                 .veterinary(scheduleSaveRequest.veterinary())
-                .workingHours(scheduleSaveRequest.workingHours())
-                .workingDays(scheduleSaveRequest.workingDays())
                 .build();
         scheduleRepository.save(schedule);
         return new MessageResponse("Schedule created successfully");
     }
 
-    public MessageResponse updateSchedule(UUID veterinaryId, ScheduleUpdateRequest scheduleUpdateRequest) {
-        var veterinary = userRepository.findById(veterinaryId)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
-            var schedule = scheduleRepository.findScheduleByVeterinary(veterinary)
+    public void saveAllSchedules(List<ScheduleSaveRequest> scheduleSaveRequests) {
+        for (ScheduleSaveRequest scheduleSaveRequest : scheduleSaveRequests) {
+            var schedule = new Schedule();
+            schedule.setDayOfWeek(scheduleSaveRequest.dayOfWeek());
+            schedule.setVeterinary(scheduleSaveRequest.veterinary());
+            schedule.setTimeSlot(scheduleSaveRequest.timeSlot());
+            scheduleRepository.save(schedule);
+        }
+    }
+    public MessageResponse updateSchedule(Long scheduleId, ScheduleUpdateRequest scheduleUpdateRequest) {
+        var schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ScheduleNotFoundException("Schedule not found with given ID!"));
         modelMapper.map(scheduleUpdateRequest, schedule);
         scheduleRepository.save(schedule);

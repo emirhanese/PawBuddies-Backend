@@ -28,10 +28,10 @@ public class User extends BaseModel implements UserDetails {
     @Enumerated(EnumType.STRING)
     private UserRole role;
     @Getter
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pet> pets;
     @Getter
-    @OneToMany(mappedBy = "reservationOwner")
+    @OneToMany(mappedBy = "reservationOwner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations;
     @Getter
     @Setter

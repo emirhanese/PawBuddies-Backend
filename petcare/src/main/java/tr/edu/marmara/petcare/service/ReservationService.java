@@ -27,7 +27,7 @@ public class ReservationService {
         var user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
         return reservationRepository.findReservationsByReservationOwner(user)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
+                .orElseThrow(() -> new ReservationNotFoundException("Reservation not found with given veterinary!"));
     }
 
     public Reservation getReservationById(UUID reservationId) {

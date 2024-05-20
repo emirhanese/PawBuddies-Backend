@@ -1,12 +1,9 @@
 package tr.edu.marmara.petcare.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
-
 
 @Entity
 @Getter
@@ -18,6 +15,6 @@ public class Veterinary extends User {
     private Document document;
     @OneToMany(mappedBy = "veterinary")
     private List<Reservation> reservations;
-    @OneToOne(mappedBy = "veterinary")
-    private Schedule schedule;
+    @OneToMany(mappedBy = "veterinary", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Schedule> schedule;
 }

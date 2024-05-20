@@ -28,9 +28,9 @@ public class Pet extends BaseModel {
     private Double latitude;
     private Date birthDate;
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User owner;
-    @OneToMany(mappedBy = "pet")
+    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations;
 }

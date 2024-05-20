@@ -1,5 +1,6 @@
 package tr.edu.marmara.petcare.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -62,7 +63,7 @@ public class PetService {
 
         return modelMapper.map(petToBeUpdated, PetResponse.class);
     }
-
+    @Transactional
     public PetResponse deletePet(UUID petId) {
         PetResponse petToBeDeleted = getPetById(petId);
         petRepository.deleteById(petId);

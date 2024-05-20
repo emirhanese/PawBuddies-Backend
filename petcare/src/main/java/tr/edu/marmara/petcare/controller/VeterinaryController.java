@@ -3,8 +3,11 @@ package tr.edu.marmara.petcare.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tr.edu.marmara.petcare.dto.MessageResponse;
+import tr.edu.marmara.petcare.dto.ScheduleUpdateRequest;
 import tr.edu.marmara.petcare.dto.VeterinaryResponse;
 import tr.edu.marmara.petcare.dto.VeterinaryUpdateRequest;
+import tr.edu.marmara.petcare.model.Schedule;
 import tr.edu.marmara.petcare.service.ReservationService;
 import tr.edu.marmara.petcare.service.ScheduleService;
 import tr.edu.marmara.petcare.service.UserService;
@@ -45,5 +48,22 @@ public class VeterinaryController {
     @DeleteMapping("/{veterinaryId}")
     public ResponseEntity<VeterinaryResponse> deleteVeterinary(@PathVariable UUID veterinaryId) {
         return new ResponseEntity<>(veterinaryService.deleteVeterinary(veterinaryId), HttpStatus.OK);
+    }
+
+    @GetMapping("/schedules/{veterinaryId}")
+    public ResponseEntity<List<Schedule>> getSchedulesOfVeterinary(@PathVariable UUID veterinaryId) {
+        return new ResponseEntity<>(scheduleService.getSchedulesOfVeterinary(veterinaryId), HttpStatus.OK);
+    }
+
+    @GetMapping("/schedules/{veterinaryId}")
+    public ResponseEntity<Schedule> getScheduleOfVeterinaryForSpecificDay(@PathVariable UUID veterinaryId,
+                                                                   @RequestParam String day) {
+        return new ResponseEntity<>(scheduleService.getScheduleOfVeterinaryForSpecificDay(veterinaryId, day), HttpStatus.OK);
+    }
+
+    @PutMapping("/schedules")
+    public ResponseEntity<MessageResponse> updateSchedule(@RequestParam Long scheduleId,
+                                                          @RequestBody ScheduleUpdateRequest scheduleUpdateRequest) {
+        return new ResponseEntity<>(scheduleService.updateSchedule(scheduleId, scheduleUpdateRequest), HttpStatus.OK);
     }
 }

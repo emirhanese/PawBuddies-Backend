@@ -20,6 +20,7 @@ import tr.edu.marmara.petcare.repository.UserRepository;
 
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,7 @@ public class AuthService {
     private final TokenRepository tokenRepository;
     private final AddressService addressService;
     private final DocumentService documentService;
+    private final ScheduleService scheduleService;
     private final JwtTokenRepository jwtTokenRepository;
 
     @Value("${application.mailing.frontend.activation-url}")
@@ -68,6 +70,19 @@ public class AuthService {
         if(registerRequest.getRole().equals("VETERINARY")) {
             addressService.saveAddress(userToBeSaved, registerRequest.getAddress());
             documentService.saveDocument(userToBeSaved, registerRequest.getDocument());
+
+            TimeSlot beginningTimeSlot = new TimeSlot();
+            beginningTimeSlot.setAvailableHours(Map.of("09.00 - 11.00", true,
+                    "11.00 - 13.00", true,
+                    "13.00 - 15.00", true,
+                    "15.00 - 17.00", true));
+            ScheduleSaveRequest mon = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.MONDAY, beginningTimeSlot);
+            ScheduleSaveRequest tue = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.TUESDAY, beginningTimeSlot);
+            ScheduleSaveRequest wed = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.WEDNESDAY, beginningTimeSlot);
+            ScheduleSaveRequest thu = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.THURSDAY, beginningTimeSlot);
+            ScheduleSaveRequest fri = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.FRIDAY, beginningTimeSlot);
+
+            scheduleService.saveAllSchedules(List.of(mon, tue, wed, thu, fri));
         }
 
         sendValidationEmail(userToBeSaved);
