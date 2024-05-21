@@ -21,12 +21,10 @@ import java.util.UUID;
 public class VeterinaryController {
     private final VeterinaryService veterinaryService;
     private final ScheduleService scheduleService;
-    private final ReservationService reservationService;
 
     public VeterinaryController(VeterinaryService veterinaryService, ScheduleService scheduleService, ReservationService reservationService) {
         this.veterinaryService = veterinaryService;
         this.scheduleService = scheduleService;
-        this.reservationService = reservationService;
     }
 
     @GetMapping
@@ -51,16 +49,13 @@ public class VeterinaryController {
     }
 
     @GetMapping("/schedules/{veterinaryId}")
-    public ResponseEntity<List<Schedule>> getSchedulesOfVeterinary(@PathVariable UUID veterinaryId) {
+    public ResponseEntity<?> getSchedulesOfVeterinary(@PathVariable UUID veterinaryId,
+                                                      @RequestParam(required = false) String day) {
+        if(day != null) {
+            return new ResponseEntity<>(scheduleService.getScheduleOfVeterinaryForSpecificDay(veterinaryId, day), HttpStatus.OK);
+        }
         return new ResponseEntity<>(scheduleService.getSchedulesOfVeterinary(veterinaryId), HttpStatus.OK);
     }
-
-    @GetMapping("/schedules/{veterinaryId}")
-    public ResponseEntity<Schedule> getScheduleOfVeterinaryForSpecificDay(@PathVariable UUID veterinaryId,
-                                                                   @RequestParam String day) {
-        return new ResponseEntity<>(scheduleService.getScheduleOfVeterinaryForSpecificDay(veterinaryId, day), HttpStatus.OK);
-    }
-
     @PutMapping("/schedules")
     public ResponseEntity<MessageResponse> updateSchedule(@RequestParam Long scheduleId,
                                                           @RequestBody ScheduleUpdateRequest scheduleUpdateRequest) {

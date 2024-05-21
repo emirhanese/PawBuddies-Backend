@@ -30,7 +30,7 @@ public class ReservationService {
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found with given veterinary!"));
     }
 
-    public Reservation getReservationById(UUID reservationId) {
+    public Reservation getReservationById(Long reservationId) {
         return reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationNotFoundException("Reservation not found with given ID!"));
     }
@@ -48,7 +48,7 @@ public class ReservationService {
         return new MessageResponse("Reservation created successfully");
     }
 
-    public MessageResponse deleteReservation(UUID reservationId) {
+    public MessageResponse deleteReservation(Long reservationId) {
         reservationRepository.deleteById(reservationId);
         return new MessageResponse("Reservation deleted successfully");
     }

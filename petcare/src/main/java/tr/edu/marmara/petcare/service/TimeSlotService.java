@@ -27,6 +27,10 @@ public class TimeSlotService {
                 .orElseThrow(() -> new ScheduleNotFoundException("Schedule not found!"));
     }
 
+    public void saveTimeSlot(TimeSlot timeSlot) {
+        timeSlotRepository.save(timeSlot);
+    }
+
     public MessageResponse updateTimeSlotsOfSchedule(Long scheduleId, TimeSlotUpdateRequest timeSlotUpdateRequest) {
         var schedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ScheduleNotFoundException("Schedule not found!"));

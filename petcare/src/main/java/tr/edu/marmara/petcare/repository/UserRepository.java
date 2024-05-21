@@ -3,6 +3,7 @@ package tr.edu.marmara.petcare.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import tr.edu.marmara.petcare.model.User;
+import tr.edu.marmara.petcare.model.UserRole;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,5 +13,5 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
 
     Optional<User> findByEmail(String email);
-    Optional<List<User>> findAllByRole(String role);
+    Optional<List<User>> findAllByRole(UserRole role);
 }

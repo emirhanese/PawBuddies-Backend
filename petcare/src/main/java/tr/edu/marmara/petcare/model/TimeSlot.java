@@ -22,6 +22,6 @@ public class TimeSlot {
     @ElementCollection
     @MapKeyColumn(name="hours")
     @Column(name="isAvailable")
-    @CollectionTable(name="available_hours", joinColumns=@JoinColumn(name="available_hours_id"))
+    @CollectionTable(name="available_hours", joinColumns=@JoinColumn(name="schedule_id"))
     private Map<String, Boolean> availableHours = new HashMap<>();
 }

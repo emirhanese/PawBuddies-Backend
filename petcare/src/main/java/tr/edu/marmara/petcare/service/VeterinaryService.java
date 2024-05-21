@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import tr.edu.marmara.petcare.dto.VeterinaryResponse;
 import tr.edu.marmara.petcare.dto.VeterinaryUpdateRequest;
 import tr.edu.marmara.petcare.model.UserRole;
+import tr.edu.marmara.petcare.repository.AddressRepository;
+import tr.edu.marmara.petcare.repository.DocumentRepository;
 import tr.edu.marmara.petcare.repository.UserRepository;
 
 import java.util.List;
@@ -17,23 +19,46 @@ public class VeterinaryService {
 
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final AddressRepository addressRepository;
+    private final DocumentRepository documentRepository;
 
-    public VeterinaryService(UserRepository userRepository, ModelMapper modelMapper) {
+    public VeterinaryService(UserRepository userRepository, ModelMapper modelMapper, AddressRepository addressRepository, DocumentRepository documentRepository) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.addressRepository = addressRepository;
+        this.documentRepository = documentRepository;
     }
 
-
     public List<VeterinaryResponse> getVeterinaries() {
-        return userRepository.findAllByRole(String.valueOf(UserRole.VETERINARY)).stream()
-                .map((user -> modelMapper.map(user, VeterinaryResponse.class)))
+        return userRepository.findAllByRole(UserRole.VETERINARY).orElseThrow().stream()
+                .map((user -> new VeterinaryResponse(
+                        user.getId(),
+                        user.getCreatedAt(),
+                        user.getUpdatedAt(),
+                        user.getName(),
+                        user.getSurname(),
+                        user.getEmail(),
+                        user.getRole(),
+                        addressRepository.findAddressByVeterinary(user),
+                        documentRepository.findDocumentByVeterinary(user)
+                )))
                 .collect(Collectors.toList());
     }
 
     public VeterinaryResponse getVeterinaryById(UUID veterinaryId) {
         var user = userRepository.findById(veterinaryId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with given ID!"));
-        return modelMapper.map(user, VeterinaryResponse.class);
+        return new VeterinaryResponse(
+                user.getId(),
+                user.getCreatedAt(),
+                user.getUpdatedAt(),
+                user.getName(),
+                user.getSurname(),
+                user.getEmail(),
+                user.getRole(),
+                addressRepository.findAddressByVeterinary(user),
+                documentRepository.findDocumentByVeterinary(user)
+        );
     }
 
     public VeterinaryResponse updateVeterinary(UUID veterinaryId, VeterinaryUpdateRequest veterinaryUpdateRequest) {

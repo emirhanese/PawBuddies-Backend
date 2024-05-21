@@ -11,7 +11,10 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name = "reservations")
-public class Reservation extends BaseModel {
+public class Reservation {
+    @Id
+    @GeneratedValue
+    private Long id;
     private String subject;
     @JsonIgnore
     @ManyToOne(cascade = CascadeType.ALL)
@@ -20,10 +23,10 @@ public class Reservation extends BaseModel {
     private String reservationDay;
     private String reservationTime;
     @JsonIgnore
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User reservationOwner;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "veterinary_id")
     private Veterinary veterinary;
 }

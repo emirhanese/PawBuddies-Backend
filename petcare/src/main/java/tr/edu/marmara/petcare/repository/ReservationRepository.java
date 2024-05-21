@@ -10,6 +10,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ReservationRepository extends JpaRepository<Reservation, UUID> {
+public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     Optional<List<Reservation>> findReservationsByReservationOwner(User user);
 }

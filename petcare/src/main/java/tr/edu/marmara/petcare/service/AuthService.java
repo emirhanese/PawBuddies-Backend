@@ -39,6 +39,7 @@ public class AuthService {
     private final AddressService addressService;
     private final DocumentService documentService;
     private final ScheduleService scheduleService;
+    private final TimeSlotService timeSlotService;
     private final JwtTokenRepository jwtTokenRepository;
 
     @Value("${application.mailing.frontend.activation-url}")
@@ -71,18 +72,15 @@ public class AuthService {
             addressService.saveAddress(userToBeSaved, registerRequest.getAddress());
             documentService.saveDocument(userToBeSaved, registerRequest.getDocument());
 
-            TimeSlot beginningTimeSlot = new TimeSlot();
-            beginningTimeSlot.setAvailableHours(Map.of("09.00 - 11.00", true,
-                    "11.00 - 13.00", true,
-                    "13.00 - 15.00", true,
-                    "15.00 - 17.00", true));
-            ScheduleSaveRequest mon = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.MONDAY, beginningTimeSlot);
-            ScheduleSaveRequest tue = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.TUESDAY, beginningTimeSlot);
-            ScheduleSaveRequest wed = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.WEDNESDAY, beginningTimeSlot);
-            ScheduleSaveRequest thu = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.THURSDAY, beginningTimeSlot);
-            ScheduleSaveRequest fri = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.FRIDAY, beginningTimeSlot);
+            ScheduleSaveRequest mon = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.MONDAY);
+            ScheduleSaveRequest tue = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.TUESDAY);
+            ScheduleSaveRequest wed = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.WEDNESDAY);
+            ScheduleSaveRequest thu = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.THURSDAY);
+            ScheduleSaveRequest fri = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.FRIDAY);
+            ScheduleSaveRequest sat = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.SATURDAY);
+            ScheduleSaveRequest sun = new ScheduleSaveRequest(userToBeSaved, DayOfWeek.SUNDAY);
 
-            scheduleService.saveAllSchedules(List.of(mon, tue, wed, thu, fri));
+            scheduleService.saveAllSchedules(List.of(mon, tue, wed, thu, fri, sat, sun));
         }
 
         sendValidationEmail(userToBeSaved);

@@ -26,4 +26,8 @@ public class Schedule {
     @ManyToOne
     @JoinColumn(name = "veterinary_id", nullable = false)
     private User veterinary;
+    public void setTimeSlot(TimeSlot timeSlot) {
+        this.timeSlot = timeSlot;
+        this.timeSlot.setSchedule(this);
+    }
 }
