@@ -1,11 +1,9 @@
 package tr.edu.marmara.petcare.dto;
 
-import tr.edu.marmara.petcare.model.TimeSlot;
 import tr.edu.marmara.petcare.model.User;
-import tr.edu.marmara.petcare.model.Veterinary;
 
 import java.time.DayOfWeek;
-import java.util.List;
+import java.util.Map;
 
-public record ScheduleSaveRequest(User veterinary, DayOfWeek dayOfWeek) {
+public record ScheduleSaveRequest(User veterinary, DayOfWeek dayOfWeek, Map<String, Boolean> availableHours) {
 }

@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.DayOfWeek;
+import java.util.HashMap;
+import java.util.Map;
 
 @Builder
 @NoArgsConstructor
@@ -20,14 +22,13 @@ public class Schedule {
     // working days, working hours and available hours must be space separated.
     @Enumerated(EnumType.STRING)
     private DayOfWeek dayOfWeek;
-    @OneToOne(mappedBy = "schedule", cascade = CascadeType.ALL)
-    private TimeSlot timeSlot;
+    @ElementCollection
+    @MapKeyColumn(name="hours")
+    @Column(name="isAvailable")
+    @CollectionTable(name="available_hours", joinColumns=@JoinColumn(name="schedule_id"))
+    private Map<String, Boolean> availableHours = new HashMap<>();
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "veterinary_id", nullable = false)
     private User veterinary;
-    public void setTimeSlot(TimeSlot timeSlot) {
-        this.timeSlot = timeSlot;
-        this.timeSlot.setSchedule(this);
-    }
 }
