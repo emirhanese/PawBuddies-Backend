@@ -71,4 +71,4 @@ If you have not previously done so, please fill out and submit the [Contributor 
 
 # License
 
-The PawBuddies Backend application is released under the [MIT License](https://opensource.org/license/mit).
+The PawBuddies Backend application is released under the [MIT License](LICENSE).
