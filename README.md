@@ -62,3 +62,13 @@ The following items should be installed in your system:
 4) Navigate to Petclinic
 
     Visit [http://localhost:8080](http://localhost:8080) in your browser.
+
+# Contributing
+
+The [issue tracker](https://github.com/emirhanese/PawBuddies-Backend/issues) is the preferred channel for bug reports, features requests and submitting pull requests.
+
+If you have not previously done so, please fill out and submit the [Contributor License Agreement](https://cla.pivotal.io/sign/spring).
+
+# License
+
+The PawBuddies Backend application is released under the [MIT License](https://opensource.org/license/mit).
